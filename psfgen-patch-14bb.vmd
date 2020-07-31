@@ -1,0 +1,41 @@
+resetpsf
+topology top_all36_carb.rtf
+
+segment CHI {
+	pdb alpha-chitin_unitcell-out.pdb
+}
+coordpdb alpha-chitin_unitcell-out.pdb
+
+set base 4
+set xNum 8
+set yNum 1
+set zNum 12
+
+for {set z 0} {$z < ${zNum}} {incr z} {
+    for {set y 0} {$y < ${yNum}} {incr y} {
+        for {set x 0} {$x < ${xNum}} {incr x} {
+
+            set this1 [expr ( $z*${yNum}*${xNum} + $y*${xNum} + $x ) * ${base} + 1]
+            set this2 [expr ${this1} + 1]
+            set this3 [expr ${this1} + 2]
+            set this4 [expr ${this1} + 3]
+
+            patch 14bb CHI:${this2} CHI:${this4}
+            patch 14bb CHI:${this3} CHI:${this1}
+
+            if {$x < [expr ${xNum}-1]} {
+                set next1 [expr ${this1} + 4]
+                set next2 [expr ${this1} + 5]
+
+                patch 14bb CHI:${this4} CHI:${next2}
+                patch 14bb CHI:${next1} CHI:${this3}
+            }
+        }
+    }
+}
+
+guesscoord
+regenerate angles dihedrals
+
+writepsf alpha-chitin_unitcell-out2.psf
+writepdb alpha-chitin_unitcell-out2.pdb
